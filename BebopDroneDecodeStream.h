@@ -116,6 +116,12 @@ typedef struct
     int run;
 
     IHM_t *ihm;
+
+    // addition code necessary for the interface between C/C++
+    pid_t child;
+    int failed;
+    int gIHMRun;
+    uint8_t *frame;
 } BD_MANAGER_t;
 
 struct READER_THREAD_DATA_t
@@ -125,8 +131,9 @@ struct READER_THREAD_DATA_t
 };
 
 
-/** Old main function **/
+/** Interface **/
 int BebopDroneDecodeStreamMain (BD_MANAGER_t *deviceManager);
+int Drone_shutdown (BD_MANAGER_t *deviceManager);
 
 /** Connection part **/
 int ardiscoveryConnect (BD_MANAGER_t *deviceManager);

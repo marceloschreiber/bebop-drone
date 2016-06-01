@@ -16,14 +16,51 @@ int main()
 
   BebopDroneDecodeStreamMain(deviceManager);
 
-  Mat image;
-  image = imread("../src/lena.png");
+  VideoCapture cap(0);
+  Mat frame, edges;
+  namedWindow("Webcam", 1);
 
-  namedWindow( "Display Image", CV_WINDOW_AUTOSIZE );
-  imshow( "Display Image", image );
+  if (!deviceManager->failed)
+  {
+      while (deviceManager->gIHMRun)
+      {
+        cap >> frame;
+        imshow("Webcam", frame);
+        waitKey(1);
+          // if (deviceManager -> frame != NULL)
+          // {
+          //     FrameNum++;
+          //     video.push_back(new FeatureFrame);
+          //     (*video.back()).FrameNum = FrameNum;
+          //     (*video.back()).Frame = tmp;
+          //     (*video.back()).Frame.data = (*deviceManager).frame;
+          //
+          //     get_feature(video, extractor);//generate feature
+          //
+          //     if (video.size() != 1)
+          //     {
+          //         get_match(video, matcher);
+          //         cv::drawMatches( (*video.back()).Frame, (*video.back()).KeyPts,(*video[video.size()-2]).Frame, (*video[video.size()-2]).KeyPts, (*video.back()).MatchPoint.MatchList, FrameOut, cv::Scalar::all(-1), cv::Scalar::all(-1), cv::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
+          //
+          //         cv::imshow("Match", FrameOut);
+          //
+          //         get_extrinsicMatrix(video, cameraMatrix);
+          //
+          //     }
+          //
+          //     if (video.size() >= 24)
+          //     {
+          //         delete (*video.begin());
+          //         video.erase (video.begin());
+          //     }
+          //
+          //     cv::waitKey(1);
+          // }
+      }
+      IHM_PrintInfo(deviceManager->ihm, (char *)std::string("Disconnecting ...").c_str());
+  }
 
-  imwrite("output.jpg", image);
+  Drone_shutdown(deviceManager);
 
-  waitKey(0);
   return 0;
 }
