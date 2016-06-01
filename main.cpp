@@ -20,6 +20,7 @@ int main()
   Mat frame, edges;
   namedWindow("Webcam", 1);
 
+  // Vidal fazendo merda
   if (!deviceManager->failed)
   {
       while (deviceManager->gIHMRun)
