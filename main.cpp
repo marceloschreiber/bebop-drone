@@ -19,7 +19,7 @@ int main()
   VideoCapture cap(0);
   Mat frame, edges;
   namedWindow("Webcam", 1);
-
+  // VIDAL idiota
   if (!deviceManager->failed)
   {
       while (deviceManager->gIHMRun)
