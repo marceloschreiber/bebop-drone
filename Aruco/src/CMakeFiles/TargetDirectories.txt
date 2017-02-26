@@ -1,0 +1,4 @@
+/home/marcelo/IIT/LearningOpenCV/ARCode/src/CMakeFiles/rebuild_cache.dir
+/home/marcelo/IIT/LearningOpenCV/ARCode/src/CMakeFiles/edit_cache.dir
+/home/marcelo/IIT/LearningOpenCV/ARCode/src/CMakeFiles/readARCode.dir
+/home/marcelo/IIT/LearningOpenCV/ARCode/src/CMakeFiles/makeARCode.dir

@@ -121,7 +121,15 @@ typedef struct
     pid_t child;
     int failed;
     int gIHMRun;
-    uint8_t *frame;
+    AVFrame *frameReady;
+
+    char *Y;
+    char *U;
+    char *V;
+
+    int speedX;
+    int speedY;
+    int speedZ;
 } BD_MANAGER_t;
 
 struct READER_THREAD_DATA_t
@@ -134,6 +142,7 @@ struct READER_THREAD_DATA_t
 /** Interface **/
 int BebopDroneDecodeStreamMain (BD_MANAGER_t *deviceManager);
 int Drone_shutdown (BD_MANAGER_t *deviceManager);
+int ARDrone3SendPilotingFlatTrim(BD_MANAGER_t *deviceManager);
 
 /** Connection part **/
 int ardiscoveryConnect (BD_MANAGER_t *deviceManager);
@@ -181,5 +190,6 @@ void flyingStateChangedCallback (eARCOMMANDS_ARDRONE3_PILOTINGSTATE_FLYINGSTATEC
 /** IHM callbacks **/
 void onInputEvent (eIHM_INPUT_EVENT event, void *customData);
 int customPrintCallback (eARSAL_PRINT_LEVEL level, const char *tag, const char *format, va_list va);
+
 
 #endif /* _SDK_EXAMPLE_BD_H_ */

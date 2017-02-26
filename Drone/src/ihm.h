@@ -70,6 +70,7 @@ typedef struct
     int run;
     IHM_onInputEvent_t onInputEventCallback;
     void *customData;
+    bool autonomousMode;
 }IHM_t;
 
 IHM_t *IHM_New (IHM_onInputEvent_t onInputEventCallback);

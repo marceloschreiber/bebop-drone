@@ -191,6 +191,7 @@ void *IHM_InputProcessing(void *data)
                 {
                     ihm->onInputEventCallback (IHM_INPUT_EVENT_FORWARD, ihm->customData);
                 }
+                ihm->autonomousMode = false;
             }
             else if(key == KEY_DOWN)
             {
@@ -198,6 +199,7 @@ void *IHM_InputProcessing(void *data)
                 {
                     ihm->onInputEventCallback (IHM_INPUT_EVENT_BACK, ihm->customData);
                 }
+                ihm->autonomousMode = false;
             }
             else if(key == KEY_LEFT)
             {
@@ -205,6 +207,7 @@ void *IHM_InputProcessing(void *data)
                 {
                     ihm->onInputEventCallback (IHM_INPUT_EVENT_LEFT, ihm->customData);
                 }
+                ihm->autonomousMode = false;
             }
             else if(key == KEY_RIGHT)
             {
@@ -212,6 +215,7 @@ void *IHM_InputProcessing(void *data)
                 {
                     ihm->onInputEventCallback (IHM_INPUT_EVENT_RIGHT, ihm->customData);
                 }
+                ihm->autonomousMode = false;
             }
             else if(key == 'm')
             {
@@ -219,6 +223,7 @@ void *IHM_InputProcessing(void *data)
                 {
                     ihm->onInputEventCallback (IHM_INPUT_EVENT_EMERGENCY, ihm->customData);
                 }
+                ihm->autonomousMode = false;
             }
             else if(key == 'z')
             {
@@ -226,6 +231,7 @@ void *IHM_InputProcessing(void *data)
                 {
                     ihm->onInputEventCallback (IHM_INPUT_EVENT_UP, ihm->customData);
                 }
+                ihm->autonomousMode = false;
             }
             else if(key == 's')
             {
@@ -233,6 +239,7 @@ void *IHM_InputProcessing(void *data)
                 {
                     ihm->onInputEventCallback (IHM_INPUT_EVENT_DOWN, ihm->customData);
                 }
+                ihm->autonomousMode = false;
             }
             else if(key == 'q')
             {
@@ -240,6 +247,7 @@ void *IHM_InputProcessing(void *data)
                 {
                     ihm->onInputEventCallback (IHM_INPUT_EVENT_YAW_LEFT, ihm->customData);
                 }
+                ihm->autonomousMode = false;
             }
             else if(key == 'd')
             {
@@ -247,6 +255,7 @@ void *IHM_InputProcessing(void *data)
                 {
                     ihm->onInputEventCallback (IHM_INPUT_EVENT_YAW_RIGHT, ihm->customData);
                 }
+                ihm->autonomousMode = false;
             }
             else if(key == 'i')
             {
@@ -254,6 +263,7 @@ void *IHM_InputProcessing(void *data)
                 {
                     ihm->onInputEventCallback (IHM_INPUT_EVENT_CAM_UP, ihm->customData);
                 }
+                ihm->autonomousMode = false;
             }
             else if(key == 'k')
             {
@@ -261,6 +271,7 @@ void *IHM_InputProcessing(void *data)
                 {
                     ihm->onInputEventCallback (IHM_INPUT_EVENT_CAM_DOWN, ihm->customData);
                 }
+                ihm->autonomousMode = false;
             }
             else if(key == 'j')
             {
@@ -268,6 +279,7 @@ void *IHM_InputProcessing(void *data)
                 {
                     ihm->onInputEventCallback (IHM_INPUT_EVENT_CAM_LEFT, ihm->customData);
                 }
+                ihm->autonomousMode = false;
             }
             else if(key == 'l')
             {
@@ -275,6 +287,7 @@ void *IHM_InputProcessing(void *data)
                 {
                     ihm->onInputEventCallback (IHM_INPUT_EVENT_CAM_RIGHT, ihm->customData);
                 }
+                ihm->autonomousMode = false;
             }
             else if(key == ' ')
             {
@@ -282,6 +295,11 @@ void *IHM_InputProcessing(void *data)
                 {
                     ihm->onInputEventCallback (IHM_INPUT_EVENT_TAKEOFF_LANDING, ihm->customData);
                 }
+                ihm->autonomousMode = false;
+            }
+            else if(key == 'a')
+            {
+              ihm->autonomousMode = !ihm->autonomousMode;
             }
             else
             {

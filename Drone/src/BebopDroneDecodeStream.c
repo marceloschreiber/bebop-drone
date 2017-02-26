@@ -70,9 +70,11 @@ SUCH DAMAGE.
 
 #define ERROR_STR_LENGTH 2048
 
-/** MAYBE WE NEED TO DELETE THIS PART OF THE CODE **/
 #define FIFO_DIR_PATTERN "/tmp/arsdk_XXXXXX"
 #define FIFO_NAME "arsdk_fifo"
+
+#define MOVEMENT_SPEED 25
+//#define FORWARD_SPEED 30 // also used to the backward movement
 
 static char fifo_dir[] = FIFO_DIR_PATTERN;
 static char fifo_name[128] = "";
@@ -328,6 +330,7 @@ void* Decode_RunDataThread(void *customData)
         AV_PIX_FMT_YUV420P, decodedFrame->width, decodedFrame->height, 1);*/
 
         AVFrame *avFrame = av_frame_alloc();
+        deviceManager->frameReady = avFrame;
         if (avFrame != NULL)
         {
           avFrame->width = decodedFrame->width;
@@ -338,6 +341,11 @@ void* Decode_RunDataThread(void *customData)
           avFrame->linesize[0] = decodedFrame->componentArray[0].lineSize;
           avFrame->linesize[1] = decodedFrame->componentArray[1].lineSize;
           avFrame->linesize[2] = decodedFrame->componentArray[2].lineSize;
+
+          // Extract the frame data
+          deviceManager->Y = decodedFrame->componentArray[0].data;
+          deviceManager->U = decodedFrame->componentArray[1].data;
+          deviceManager->V = decodedFrame->componentArray[2].data;
 
           avFrame->data[0] = decodedFrame->componentArray[0].data;
           avFrame->data[1] = decodedFrame->componentArray[1].data;
@@ -633,7 +641,7 @@ int BebopDroneDecodeStreamMain (BD_MANAGER_t *deviceManager)
 
   if (!deviceManager->failed)
   {
-    IHM_PrintInstruction(deviceManager->ihm, "Arrow keys to move ; \n'z' = up ; 's' = down ; 'q' = yaw left ; 'd' = yaw right; \nSpacebar to take off/land ; \n'k' = move camera down ; 'i' = move camera up ; 'j' = move camera left ; 'l' = move camera right ;\n'm' = EMERGENCY\n'esc' to quit");
+    IHM_PrintInstruction(deviceManager->ihm, "Arrow keys to move ; \n'z' = up ; 's' = down ; 'q' = yaw left ; 'd' = yaw right; \nSpacebar to take off/land ; \n'k' = move camera down ; 'i' = move camera up ; 'j' = move camera left ; 'l' = move camera right ;\n'a' = Autonomous Mode ON/OFF\n'm' = EMERGENCY\n'esc' to quit");
 
     // while (gIHMRun)
     // {
@@ -1619,6 +1627,13 @@ void onInputEvent (eIHM_INPUT_EVENT event, void *customData)
   // Manage IHM input events
   BD_MANAGER_t *deviceManager = (BD_MANAGER_t *)customData;
 
+  if(!deviceManager->ihm->autonomousMode)
+  {
+    deviceManager->speedX = 50;
+    deviceManager->speedY = 50;
+    deviceManager->speedZ = 50;
+  }
+
   switch (event)
   {
     case IHM_INPUT_EVENT_EXIT:
@@ -1642,59 +1657,58 @@ void onInputEvent (eIHM_INPUT_EVENT event, void *customData)
       {
         sendLanding(deviceManager);
       }
-
     }
     break;
     case IHM_INPUT_EVENT_FORWARD:
     if(deviceManager != NULL)
     {
       deviceManager->dataPCMD.flag = 1;
-      deviceManager->dataPCMD.pitch = 50;
+      deviceManager->dataPCMD.pitch = deviceManager->speedZ;
     }
     break;
     case IHM_INPUT_EVENT_BACK:
     if(deviceManager != NULL)
     {
       deviceManager->dataPCMD.flag = 1;
-      deviceManager->dataPCMD.pitch = -50;
+      deviceManager->dataPCMD.pitch = -deviceManager->speedZ;
     }
     break;
     case IHM_INPUT_EVENT_RIGHT:
     if(deviceManager != NULL)
     {
       deviceManager->dataPCMD.flag = 1;
-      deviceManager->dataPCMD.roll = 50;
+      deviceManager->dataPCMD.roll = deviceManager->speedX;
     }
     break;
     case IHM_INPUT_EVENT_LEFT:
     if(deviceManager != NULL)
     {
       deviceManager->dataPCMD.flag = 1;
-      deviceManager->dataPCMD.roll = -50;
+      deviceManager->dataPCMD.roll = -deviceManager->speedX;
     }
     break;
     case IHM_INPUT_EVENT_YAW_RIGHT:
     if(deviceManager != NULL)
     {
-      deviceManager->dataPCMD.yaw = 50;
+      deviceManager->dataPCMD.yaw = deviceManager->speedX;
     }
     break;
     case IHM_INPUT_EVENT_YAW_LEFT:
     if(deviceManager != NULL)
     {
-      deviceManager->dataPCMD.yaw = -50;
+      deviceManager->dataPCMD.yaw = -deviceManager->speedX;
     }
     break;
     case IHM_INPUT_EVENT_UP:
     if(deviceManager != NULL)
     {
-      deviceManager->dataPCMD.gaz = 50;
+      deviceManager->dataPCMD.gaz = deviceManager->speedY;
     }
     break;
     case IHM_INPUT_EVENT_DOWN:
     if(deviceManager != NULL)
     {
-      deviceManager->dataPCMD.gaz = -50;
+      deviceManager->dataPCMD.gaz = -deviceManager->speedY;
     }
     break;
     case IHM_INPUT_EVENT_CAM_UP:
@@ -1764,4 +1778,26 @@ int customPrintCallback (eARSAL_PRINT_LEVEL level, const char *tag, const char *
   }
 
   return 1;
+}
+
+int ARDrone3SendPilotingFlatTrim(BD_MANAGER_t *deviceManager)
+{
+    int sentStatus = 1;
+    u_int8_t cmdbuf[128];
+    int32_t actualSize = 0;
+    eARCOMMANDS_GENERATOR_ERROR cmdError;
+    eARNETWORK_ERROR netError = ARNETWORK_ERROR;
+
+    // Send FlatTrim command
+    cmdError = ARCOMMANDS_Generator_GenerateARDrone3PilotingFlatTrim(cmdbuf, sizeof(cmdbuf), &actualSize);
+    if (cmdError == ARCOMMANDS_GENERATOR_OK)
+    {
+        netError = ARNETWORK_Manager_SendData(deviceManager->netManager, BD_NET_CD_NONACK_ID, cmdbuf, actualSize, NULL, &(arnetworkCmdCallback), 1);
+    }
+    if ((cmdError != ARCOMMANDS_GENERATOR_OK) || (netError != ARNETWORK_OK))
+    {
+        ARSAL_PRINT(ARSAL_PRINT_ERROR, TAG, "Failed to send FlatTrim command.");
+    }
+
+    return sentStatus;
 }
